@@ -8,10 +8,25 @@ public class SpaceCamper : ModuleRules
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 	
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput" });
+		PublicDependencyModuleNames.AddRange(new string[]
+		{
+			"Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput",
+			"GeometryScriptingCore",
+			"DynamicMesh",
+			"ModelingComponents",
+			"GeometryFramework",
+			"GeometryCore",
+			"StaticMeshDescription"
+		});
 
-		PrivateDependencyModuleNames.AddRange(new string[] {  });
+		PrivateDependencyModuleNames.AddRange(new string[] { });
 
+		PrivateIncludePaths.AddRange(
+		new string[]
+		{
+			"SpaceCamper" // 프로젝트명
+		});
+		
 		// Uncomment if you are using Slate UI
 		// PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore" });
 		
