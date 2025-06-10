@@ -25,7 +25,8 @@ protected:
 	virtual void BeginPlay() override;
 	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
 	virtual void PostRegisterAllComponents() override;
-
+	virtual void Tick(float DeltaSeconds) override;
+	
 public:
 
 	UPROPERTY()
@@ -34,11 +35,11 @@ public:
 	UHierarchicalInstancedStaticMeshComponent* GrassFoliageComponent;
 	UPROPERTY()
 	UHierarchicalInstancedStaticMeshComponent* RockFoliageComponent;
-	UPROPERTY(EditAnywhere, Category = "Foliage")
+	UPROPERTY(EditAnywhere, Category = "Planet Foliage Params")
 	UStaticMesh* TreeFoliageMesh;
-	UPROPERTY(EditAnywhere, Category = "Foliage")
+	UPROPERTY(EditAnywhere, Category = "Planet Foliage Params")
 	UStaticMesh* GrassFoliageMesh;
-	UPROPERTY(EditAnywhere, Category = "Foliage")
+	UPROPERTY(EditAnywhere, Category = "Planet Foliage Params")
 	UStaticMesh* RockFoliageMesh;
 
 	// Planet Generation Params
@@ -81,13 +82,25 @@ public:
 
 private:
 	UE::Geometry::FMeshNormals PlanetNormals = nullptr;
+
+	// Chunk 관리
+	UPROPERTY()
+	TMap<FIntPoint, UHierarchicalInstancedStaticMeshComponent*> GrassChunkMap;
+	// 구형 Chunk 세팅
+	const float LatitudeStep = 10.f;  // 위도 10도 간격
+	const float LongitudeStep = 10.f; // 경도 10도 간격
+	const int32 TotalLonSteps = 360 / 10;
+	FIntPoint LastCameraChunk = FIntPoint::ZeroValue;
+	
+	void UpdateGrassChunks(const FIntPoint& CenterChunk);
+	void CreateGrassChunk(const FIntPoint& ChunkCoord);
 	
 	void GenerateTreeFoliage(const FVector& Pos, const FVector& Normal, float MinHeightSquared, float MaxHeightSquared) const;
-	void GenerateGrassFoliage(const FVector& Pos, const FVector& Normal, float MinHeightSquared, float MaxHeightSquared) const;
+	void GenerateGrassFoliage(float MinHeightSquared, float MaxHeightSquared) const;
 	void GenerateRockFoliage(const FVector& Pos, const FVector& Normal, float MinHeightSquared, float MaxHeightSquared) const;
 
-	FVector GetNoisePosition(const FVector& Pos);
+	FVector GetNoisePosition(const FVector& Pos, const FVector3d Offsets[3]) const;
 	
-	bool CheckHeigntInRange(float minHeight, float maxHeight, const FVector& Pos) const;
+	bool CheckHeightInRange(float minHeight, float maxHeight, const FVector& Pos) const;
 
 };
