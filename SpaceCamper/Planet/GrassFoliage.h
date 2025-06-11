@@ -8,6 +8,7 @@
 
 
 class UHierarchicalInstancedStaticMeshComponent;
+class APlanet;
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class SPACECAMPER_API UGrassFoliage : public UActorComponent
@@ -45,10 +46,11 @@ private:
 	float PlanetRadius = 10000.0f;       // 행성 반지름
 	float ChunkAngleRange = 5.0f;        // 각 Chunk 범위 각도(도 단위)
 	float OceanHeight = 0.2f;
-	float MountainHeight = 0.8f;
-	int32 RandomSeed = 1234;
+        float MountainHeight = 0.8f;
+        int32 RandomSeed = 1234;
 
-	FVector3d NoiseFrequencyShift = FVector3d(0.0, 0.0, 0.0);
+        FVector3d NoiseFrequencyShift = FVector3d(0.0, 0.0, 0.0);
+        float NoiseFrequency = 1.0f;
 
 	TMap<FIntPoint, UHierarchicalInstancedStaticMeshComponent*> GrassChunkMap;
 
