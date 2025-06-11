@@ -21,15 +21,16 @@ UGrassFoliage::UGrassFoliage()
 // Called when the game starts
 void UGrassFoliage::BeginPlay()
 {
-        Super::BeginPlay();
+    Super::BeginPlay();
 
-        APlanet* PlanetOwner = Cast<APlanet>(GetOwner());
-        if (PlanetOwner)
-        {
-                PlanetRadius = PlanetOwner->PlanetRadius;
-                NoiseFrequency = PlanetOwner->NoiseFrequency;
-                NoiseFrequencyShift = (FVector3d)PlanetOwner->NoiseFrequencyShift;
-        }
+    APlanet* PlanetOwner = Cast<APlanet>(GetOwner());
+	if (PlanetOwner)
+	{
+		CurrentRadius = PlanetOwner->PlanetRadius;
+		CurrentNoiseFrequency = PlanetOwner->NoiseFrequency;
+		CurrentNoiseShift = PlanetOwner->NoiseFrequencyShift;
+		CurrentRandom = &(PlanetOwner->Random);
+	}
 }
 
 
@@ -81,7 +82,7 @@ FIntPoint UGrassFoliage::GetChunkCoordFromOctahedral(const FVector& N, int32 Num
 
 void UGrassFoliage::UpdateGrassChunks(const FIntPoint& CenterChunk)
 {
-	const int32 LoadRange = 1;
+	const int32 LoadRange = 0;
 
 	// 이번 프레임에서 필요한 Chunk 좌표만 저장
 	TSet<FIntPoint> VisibleChunks;
@@ -126,19 +127,8 @@ void UGrassFoliage::UpdateGrassChunks(const FIntPoint& CenterChunk)
 
 void UGrassFoliage::CreateGrassChunk(const FIntPoint& ChunkCoord)
 {
-        AActor* Owner = GetOwner();
+    AActor* Owner = GetOwner();
     if (!Owner) return;
-    APlanet* PlanetOwner = Cast<APlanet>(Owner);
-
-    float CurrentRadius = PlanetRadius;
-    float CurrentNoiseFrequency = NoiseFrequency;
-    FVector CurrentNoiseShift = (FVector)NoiseFrequencyShift;
-    if (PlanetOwner)
-    {
-        CurrentRadius = PlanetOwner->PlanetRadius;
-        CurrentNoiseFrequency = PlanetOwner->NoiseFrequency;
-        CurrentNoiseShift = PlanetOwner->NoiseFrequencyShift;
-    }
 
     UHierarchicalInstancedStaticMeshComponent* GrassComp = NewObject<UHierarchicalInstancedStaticMeshComponent>(Owner);
     GrassComp->RegisterComponent();
@@ -146,13 +136,16 @@ void UGrassFoliage::CreateGrassChunk(const FIntPoint& ChunkCoord)
     GrassComp->AttachToComponent(Owner->GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
     GrassComp->SetCullDistances(0.f, 50000.f);
     GrassComp->SetCastShadow(false);
+	GrassComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);  // 충돌 완전 비활성화
+	GrassComp->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);  // 모든 채널 무시
+	GrassComp->bReceivesDecals = false;  // 필요시 데칼도 끄기
+	GrassComp->SetCanEverAffectNavigation(false); // 네비게이션 영향 없음 (NavMesh 사용시)
 
     // 랜덤 오프셋
-    FRandomStream Random(RandomSeed);
     FVector3d Offsets[3];
     for (int32 k = 0; k < 3; ++k)
     {
-        float RandomOffset = 10000.0f * Random.GetFraction();
+        float RandomOffset = 10000.0f * CurrentRandom->GetFraction();
         Offsets[k] = FVector3d(RandomOffset, RandomOffset, RandomOffset) + (FVector3d)CurrentNoiseShift;
     }
 
@@ -183,9 +176,9 @@ void UGrassFoliage::CreateGrassChunk(const FIntPoint& ChunkCoord)
     FVector T2 = FVector::CrossProduct(N, T1).GetSafeNormal();
 
 	// 대략 Chunk 중심각 (라디안) = PI / NumChunks (반구 영역의 각도 크기)
-        float ChunkAngleRad = PI / NumChunks;              // 중심각 (라디안)
-        float ChunkLength = CurrentRadius * ChunkAngleRad; // Chunk 대략적인 실제 크기 (m)
-        float PatchDelta = ChunkLength / NumChunkSamples;       // 각 샘플 간 Tangent 공간 거리
+    float ChunkAngleRad = PI / NumChunks;              // 중심각 (라디안)
+    float ChunkLength = CurrentRadius * ChunkAngleRad; // Chunk 대략적인 실제 크기 (m)
+    float PatchDelta = ChunkLength / NumChunkSamples;       // 각 샘플 간 Tangent 공간 거리
 
 	// Tangent 공간에서 delta 단위로 샘플링
 	float HalfSize = (NumChunkSamples / 2) * PatchDelta;
@@ -202,22 +195,22 @@ void UGrassFoliage::CreateGrassChunk(const FIntPoint& ChunkCoord)
 			FVector LocalOffset = u * T1 + v * T2;
 
 			// 중심 방향에서 LocalOffset을 더해 구 표면으로 투영
-                        FVector PointOnSphere = (N * CurrentRadius + LocalOffset).GetSafeNormal() * CurrentRadius;
+            FVector PointOnSphere = (N * CurrentRadius + LocalOffset).GetSafeNormal() * CurrentRadius;
 
-                        float Magnitude = CurrentRadius * 0.1f;
-                        FVector3d Displacement;
-                        for (int32 k = 0; k < 3; ++k)
-                        {
-                                FVector NoisePos = (FVector)(CurrentNoiseFrequency * (PointOnSphere + Offsets[k]));
-                                Displacement[k] = Magnitude * FMath::PerlinNoise3D(CurrentNoiseFrequency * NoisePos);
-                        }
-                        FVector NoisePoint = PointOnSphere + Displacement;
+            float Magnitude = CurrentRadius * 0.1f;
+            FVector3d Displacement;
+            for (int32 k = 0; k < 3; ++k)
+            {
+                    FVector NoisePos = (FVector)(CurrentNoiseFrequency * (PointOnSphere + Offsets[k]));
+                    Displacement[k] = Magnitude * FMath::PerlinNoise3D(CurrentNoiseFrequency * NoisePos);
+            }
+            FVector NoisePoint = PointOnSphere + Displacement;
 
-                        FRotator Rot = FRotationMatrix::MakeFromZ(NoisePoint).Rotator();
+            FRotator Rot = FRotationMatrix::MakeFromZ(NoisePoint).Rotator();
 
-                        Transforms.Add(FTransform(Rot, NoisePoint));
-                }
+            Transforms.Add(FTransform(Rot, NoisePoint));
         }
+    }
 
     GrassComp->AddInstances(Transforms, false);
     GrassComp->BuildTreeIfOutdated(true, true);
