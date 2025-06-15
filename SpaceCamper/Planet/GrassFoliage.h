@@ -30,8 +30,9 @@ public:
 
 private:
 	// Ocahedral 매핑 함수
-	static FVector2D OctahedralEncode(const FVector& N); // Octahedral 맵핑: 구면 좌표계 -> 2D 정사각형
-	static FIntPoint GetChunkCoordFromOctahedral(const FVector& N, int32 NumChunks); // 2D 좌표를 Chunk 인덱스로 변환
+    static FVector2D OctahedralEncode(const FVector& N); // Octahedral 맵핑: 구면 좌표계 -> 2D 정사각형
+    static FVector  OctahedralDecode(const FVector2D& UV); // 2D 정사각형 -> 구면 좌표계
+    static FIntPoint GetChunkCoordFromOctahedral(const FVector& N, int32 NumChunks); // 2D 좌표를 Chunk 인덱스로 변환
 
 	// Chunk 처리 함수
 	void UpdateGrassChunks(const FIntPoint& CenterChunk);
