@@ -66,30 +66,37 @@ void UFlowerFoliage::CreateFoliageChunk(const FIntPoint& ChunkCoord)
 	
 
     TArray<FTransform> Transforms;
-    Transforms.Reserve(NumChunkSamples * NumChunkSamples);
-	for (int32 i = 0; i < NumChunkSamples; ++i)
-	{
-		float U = (ChunkCoord.X + (static_cast<float>(i) + 0.5f) / NumChunkSamples) / NumChunks;
-		for (int32 j = 0; j < NumChunkSamples; ++j)
-		{
-			float V = (ChunkCoord.Y + (static_cast<float>(j) + 0.5f) / NumChunkSamples) / NumChunks;
+    int32 ClusterCount = CurrentRandom->RandRange(MinClusters, MaxClusters);
+    Transforms.Reserve(ClusterCount * ClusterSize);
 
-			// 중심 방향에서 LocalOffset을 더해 구 표면으로 투영
-			FVector PointOnSphere = OctahedralDecode(FVector2D(U, V)) * CurrentRadius;
+    for (int32 c = 0; c < ClusterCount; ++c)
+    {
+        float CenterU = (ChunkCoord.X + CurrentRandom->FRand()) / NumChunks;
+        float CenterV = (ChunkCoord.Y + CurrentRandom->FRand()) / NumChunks;
+
+        for (int32 i = 0; i < ClusterSize; ++i)
+        {
+            float OffsetU = CurrentRandom->FRandRange(-ClusterSpread, ClusterSpread) / NumChunks;
+            float OffsetV = CurrentRandom->FRandRange(-ClusterSpread, ClusterSpread) / NumChunks;
+
+            float U = CenterU + OffsetU;
+            float V = CenterV + OffsetV;
+
+            FVector PointOnSphere = OctahedralDecode(FVector2D(U, V)) * CurrentRadius;
 
             float Magnitude = CurrentRadius * 0.1f;
             FVector3d Displacement;
             for (int32 k = 0; k < 3; ++k)
             {
-                    FVector NoisePos = (PointOnSphere + Offsets[k]) * CurrentNoiseFrequency;
-                    Displacement[k] = Magnitude * FMath::PerlinNoise3D(NoisePos * CurrentNoiseFrequency);
+                FVector NoisePos = (PointOnSphere + Offsets[k]) * CurrentNoiseFrequency;
+                Displacement[k] = Magnitude * FMath::PerlinNoise3D(NoisePos * CurrentNoiseFrequency);
             }
             FVector NoisePoint = PointOnSphere + Displacement;
 
-			FQuat BaseQuat = FRotationMatrix::MakeFromZ(NoisePoint).ToQuat();
-			float RandYaw = CurrentRandom->FRandRange(0.f, 360.f);
-			FQuat RandomQuat = FQuat(NoisePoint.GetSafeNormal(), FMath::DegreesToRadians(RandYaw));
-			FRotator Rot = (RandomQuat * BaseQuat).Rotator();
+            FQuat BaseQuat = FRotationMatrix::MakeFromZ(NoisePoint).ToQuat();
+            float RandYaw = CurrentRandom->FRandRange(0.f, 360.f);
+            FQuat RandomQuat = FQuat(NoisePoint.GetSafeNormal(), FMath::DegreesToRadians(RandYaw));
+            FRotator Rot = (RandomQuat * BaseQuat).Rotator();
 
             Transforms.Add(FTransform(Rot, NoisePoint));
         }
