@@ -178,10 +178,10 @@ void UGrassFoliage::CreateGrassChunk(const FIntPoint& ChunkCoord)
     Transforms.Reserve(NumChunkSamples * NumChunkSamples);
 	for (int32 i = 0; i < NumChunkSamples; ++i)
 	{
-		float U = (ChunkCoord.X + static_cast<float>(i) / (NumChunkSamples - 1)) / NumChunks;
+		float U = (ChunkCoord.X + (static_cast<float>(i) + 0.5f) / NumChunkSamples) / NumChunks;
 		for (int32 j = 0; j < NumChunkSamples; ++j)
 		{
-			float V = (ChunkCoord.Y + static_cast<float>(j) / (NumChunkSamples - 1)) / NumChunks;
+			float V = (ChunkCoord.Y + (static_cast<float>(j) + 0.5f) / NumChunkSamples) / NumChunks;
 
 			// 중심 방향에서 LocalOffset을 더해 구 표면으로 투영
 			FVector PointOnSphere = OctahedralDecode(FVector2D(U, V)) * CurrentRadius;
