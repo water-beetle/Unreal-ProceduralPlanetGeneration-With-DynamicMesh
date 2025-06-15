@@ -82,7 +82,7 @@ FIntPoint UGrassFoliage::GetChunkCoordFromOctahedral(const FVector& N, int32 Num
 
 void UGrassFoliage::UpdateGrassChunks(const FIntPoint& CenterChunk)
 {
-	const int32 LoadRange = 0;
+	const int32 LoadRange = 2;
 
 	// 이번 프레임에서 필요한 Chunk 좌표만 저장
 	TSet<FIntPoint> VisibleChunks;
@@ -146,7 +146,7 @@ void UGrassFoliage::CreateGrassChunk(const FIntPoint& ChunkCoord)
     for (int32 k = 0; k < 3; ++k)
     {
         float RandomOffset = 10000.0f * CurrentRandom->GetFraction();
-        Offsets[k] = FVector3d(RandomOffset, RandomOffset, RandomOffset) + (FVector3d)CurrentNoiseShift;
+        Offsets[k] = FVector3d(0, 0, 0) + (FVector3d)CurrentNoiseShift;
     }
 
     // Chunk 중심 방향 계산 (Octahedral 역 변환)

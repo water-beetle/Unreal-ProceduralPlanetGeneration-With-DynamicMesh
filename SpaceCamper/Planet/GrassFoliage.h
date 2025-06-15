@@ -42,9 +42,7 @@ private:
 
 	// 파라미터
 	int32 NumChunks = 32;                // Octahedral 2D 분할 갯수
-	int32 NumChunkSamples = 32;
-	float PlanetRadius = 10000.0f;       // 행성 반지름
-	float ChunkAngleRange = 5.0f;        // 각 Chunk 범위 각도(도 단위)
+	int32 NumChunkSamples = 64;
 
 	float CurrentRadius;
 	float CurrentNoiseFrequency;

@@ -159,8 +159,8 @@ UDynamicMesh* UPlanetMeshGenerator::ApplyPlanetPerlinNoiseToMesh(UDynamicMesh* T
 		FVector3d Offsets[3];
 		for (int k = 0; k < 3; ++k)
 		{
-			const float RandomOffset = 10000.0f * Random.GetFraction();
-			Offsets[k] = FVector3d(RandomOffset, RandomOffset, RandomOffset);
+			//const float RandomOffset = 10000.0f * Random.GetFraction();
+			Offsets[k] = FVector3d(0, 0, 0);
 			Offsets[k] += (FVector3d)NoiseFrequencyShift;
 		}
 		

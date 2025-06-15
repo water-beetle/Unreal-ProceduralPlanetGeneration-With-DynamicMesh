@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/DynamicMeshComponent.h"
+#include "GeometryScript/GeometryScriptSelectionTypes.h"
 #include "PlanetMeshGenerator.generated.h"
 
 
