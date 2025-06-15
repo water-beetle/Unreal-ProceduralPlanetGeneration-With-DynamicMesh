@@ -6,6 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "Planet.generated.h"
 
+class UFlowerFoliage;
 class UGrassFoliage;
 class UPlanetMeshGenerator;
 
@@ -33,12 +34,17 @@ public:
 #endif
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Foliage")
 	UGrassFoliage* GrassFoliage;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Foliage")
+	UFlowerFoliage* FlowerFoliage;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Mesh")
 	UStaticMeshComponent* PlanetMesh;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Mesh")
 	UStaticMeshComponent* WaterMesh;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Mesh")
 	UMaterialInterface* PlanetMaterial;
+	UPROPERTY()
+	UMaterialInstanceDynamic* DynamicMaterial;
 	
 	// Editor Events
 	UFUNCTION(CallInEditor ,BlueprintImplementableEvent, Category="Planet Events")

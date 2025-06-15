@@ -3,7 +3,8 @@
 
 #include "Planet.h"
 
-#include "GrassFoliage.h"
+#include "Foliage/FlowerFoliage.h"
+#include "Foliage/GrassFoliage.h"
 #include "Utility/Generators/PlanetMeshGenerator.h"
 
 
@@ -23,6 +24,7 @@ APlanet::APlanet()
 	EditorMeshGenerator->SetupAttachment(RootComponent);
 
 	GrassFoliage = CreateDefaultSubobject<UGrassFoliage>("GrassFoliage");
+	FlowerFoliage = CreateDefaultSubobject<UFlowerFoliage>("FlowerFoliage");
 	
 	// Init Planet Noise Params
 	RandomSeed = 1999;
@@ -33,6 +35,20 @@ APlanet::APlanet()
 void APlanet::BeginPlay()
 {
 	Super::BeginPlay();
+
+	if (PlanetMaterial)
+	{
+		DynamicMaterial = UMaterialInstanceDynamic::Create(PlanetMaterial, this);
+		if (DynamicMaterial)
+		{
+			// 예시로 빨간색 적용
+			DynamicMaterial->SetScalarParameterValue(FName("MountinHeigh"), MountainHeight);
+			DynamicMaterial->SetScalarParameterValue(FName("OceanHeight"), OceanHeight);
+
+			// 메시 컴포넌트에 새 머티리얼 적용
+			PlanetMesh->SetMaterial(0, DynamicMaterial);
+		}
+	}
 	
 }
 

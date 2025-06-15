@@ -2,18 +2,18 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
-#include "ProceduralFoliageComponent.generated.h"
+#include "PlanetFoliageBase.generated.h"
 
 class UHierarchicalInstancedStaticMeshComponent;
 class APlanet;
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
-class SPACECAMPER_API UProceduralFoliageComponent : public UActorComponent
+class SPACECAMPER_API UPlanetFoliageBase : public UActorComponent
 {
         GENERATED_BODY()
 
 public:
-        UProceduralFoliageComponent();
+        UPlanetFoliageBase();
 
 protected:
         virtual void BeginPlay() override;
@@ -31,8 +31,10 @@ protected:
         FIntPoint LastCameraChunk = FIntPoint(-1, -1);
 
         const int32 NumChunks = 32;
-        const int32 NumChunkSamples = 64;
         const int32 LoadRange = 3;
+
+        UPROPERTY(EditAnywhere, Category = Foliage)
+        int32 NumChunkSamples = 64;
 
         float CurrentRadius;
         float CurrentNoiseFrequency;

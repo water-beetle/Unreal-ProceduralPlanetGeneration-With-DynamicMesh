@@ -1,16 +1,16 @@
-#include "ProceduralFoliageComponent.h"
+#include "PlanetFoliageBase.h"
 
 #include "Components/HierarchicalInstancedStaticMeshComponent.h"
 #include "Planet/Planet.h"
 #include "GameFramework/PlayerController.h"
 #include "Camera/PlayerCameraManager.h"
 
-UProceduralFoliageComponent::UProceduralFoliageComponent()
+UPlanetFoliageBase::UPlanetFoliageBase()
 {
         PrimaryComponentTick.bCanEverTick = true;
 }
 
-void UProceduralFoliageComponent::BeginPlay()
+void UPlanetFoliageBase::BeginPlay()
 {
         Super::BeginPlay();
 
@@ -24,7 +24,7 @@ void UProceduralFoliageComponent::BeginPlay()
         }
 }
 
-void UProceduralFoliageComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+void UPlanetFoliageBase::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
         Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
@@ -46,7 +46,7 @@ void UProceduralFoliageComponent::TickComponent(float DeltaTime, ELevelTick Tick
         }
 }
 
-FVector2D UProceduralFoliageComponent::OctahedralEncode(const FVector& N)
+FVector2D UPlanetFoliageBase::OctahedralEncode(const FVector& N)
 {
         FVector n = N / (FMath::Abs(N.X) + FMath::Abs(N.Y) + FMath::Abs(N.Z));
         if (n.Z < 0)
@@ -58,7 +58,7 @@ FVector2D UProceduralFoliageComponent::OctahedralEncode(const FVector& N)
         return FVector2D(n.X, n.Y);
 }
 
-FVector UProceduralFoliageComponent::OctahedralDecode(const FVector2D& UV)
+FVector UPlanetFoliageBase::OctahedralDecode(const FVector2D& UV)
 {
         FVector2D Oct = UV * 2.0f - FVector2D(1.0f, 1.0f);
 
@@ -78,7 +78,7 @@ FVector UProceduralFoliageComponent::OctahedralDecode(const FVector2D& UV)
         return N.GetSafeNormal();
 }
 
-FIntPoint UProceduralFoliageComponent::GetChunkCoordFromOctahedral(const FVector& N, int32 NumChunks)
+FIntPoint UPlanetFoliageBase::GetChunkCoordFromOctahedral(const FVector& N, int32 NumChunks)
 {
         FVector2D Oct = OctahedralEncode(N);
         FVector2D UV = (Oct * 0.5f) + FVector2D(0.5f, 0.5f);
@@ -88,7 +88,7 @@ FIntPoint UProceduralFoliageComponent::GetChunkCoordFromOctahedral(const FVector
         return FIntPoint(X, Y);
 }
 
-void UProceduralFoliageComponent::UpdateFoliageChunks(const FIntPoint& CenterChunk)
+void UPlanetFoliageBase::UpdateFoliageChunks(const FIntPoint& CenterChunk)
 {
         TSet<FIntPoint> VisibleChunks;
 

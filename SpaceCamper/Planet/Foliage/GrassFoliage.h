@@ -3,13 +3,13 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "ProceduralFoliageComponent.h"
+#include "PlanetFoliageBase.h"
 #include "GrassFoliage.generated.h"
 
 
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
-class SPACECAMPER_API UGrassFoliage : public UProceduralFoliageComponent
+class SPACECAMPER_API UGrassFoliage : public UPlanetFoliageBase
 {
 	GENERATED_BODY()
 

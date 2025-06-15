@@ -1,30 +1,54 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "GrassFoliage.h"
+#include "FlowerFoliage.h"
 
 #include "Components/HierarchicalInstancedStaticMeshComponent.h"
 
-UGrassFoliage::UGrassFoliage()
+
+// Sets default values for this component's properties
+UFlowerFoliage::UFlowerFoliage()
 {
-        PrimaryComponentTick.bCanEverTick = true;
+	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
+	// off to improve performance if you don't need them.
+	PrimaryComponentTick.bCanEverTick = true;
+	NumChunkSamples = 32;
 }
 
-void UGrassFoliage::CreateFoliageChunk(const FIntPoint& ChunkCoord)
+
+// Called when the game starts
+void UFlowerFoliage::BeginPlay()
 {
-    AActor* Owner = GetOwner();
+	Super::BeginPlay();
+
+	// ...
+	
+}
+
+
+// Called every frame
+void UFlowerFoliage::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+{
+	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+
+	// ...
+}
+
+void UFlowerFoliage::CreateFoliageChunk(const FIntPoint& ChunkCoord)
+{
+	AActor* Owner = GetOwner();
     if (!Owner) return;
 
-    UHierarchicalInstancedStaticMeshComponent* GrassComp = NewObject<UHierarchicalInstancedStaticMeshComponent>(Owner);
-    GrassComp->RegisterComponent();
-    GrassComp->SetStaticMesh(FoliageMesh);
-    GrassComp->AttachToComponent(Owner->GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
-    GrassComp->SetCullDistances(0.f, 50000.f);
-    GrassComp->SetCastShadow(false);
-	GrassComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);  // 충돌 완전 비활성화
-	GrassComp->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);  // 모든 채널 무시
-	GrassComp->bReceivesDecals = false;  // 필요시 데칼도 끄기
-	GrassComp->SetCanEverAffectNavigation(false); // 네비게이션 영향 없음 (NavMesh 사용시)
+    UHierarchicalInstancedStaticMeshComponent* FlowerComp = NewObject<UHierarchicalInstancedStaticMeshComponent>(Owner);
+    FlowerComp->RegisterComponent();
+    FlowerComp->SetStaticMesh(FoliageMesh);
+    FlowerComp->AttachToComponent(Owner->GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
+    FlowerComp->SetCullDistances(0.f, 50000.f);
+    FlowerComp->SetCastShadow(false);
+	FlowerComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);  // 충돌 완전 비활성화
+	FlowerComp->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);  // 모든 채널 무시
+	FlowerComp->bReceivesDecals = false;  // 필요시 데칼도 끄기
+	FlowerComp->SetCanEverAffectNavigation(false); // 네비게이션 영향 없음 (NavMesh 사용시)
 
     // 노이즈 시프트만 적용한 오프셋
     FVector3d Offsets[3];
@@ -71,9 +95,9 @@ void UGrassFoliage::CreateFoliageChunk(const FIntPoint& ChunkCoord)
         }
     }
 
-    GrassComp->AddInstances(Transforms, false);
-    GrassComp->BuildTreeIfOutdated(true, true);
+    FlowerComp->AddInstances(Transforms, false);
+    FlowerComp->BuildTreeIfOutdated(true, true);
 
-    FoliageChunkMap.Add(ChunkCoord, GrassComp);
+    FoliageChunkMap.Add(ChunkCoord, FlowerComp);
 }
 
