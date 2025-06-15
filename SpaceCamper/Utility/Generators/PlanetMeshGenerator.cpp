@@ -4,7 +4,6 @@
 #include "PlanetMeshGenerator.h"
 
 #include "AssetRegistry/AssetRegistryModule.h"
-#include "DynamicMesh/MeshNormals.h"
 #include "GeometryScript/GeometryScriptSelectionTypes.h"
 #include "Planet/Planet.h"
 
@@ -43,31 +42,12 @@ void UPlanetMeshGenerator::TickComponent(float DeltaTime, ELevelTick TickType,
 UStaticMesh* UPlanetMeshGenerator::BakeStaticMesh(UStaticMeshDescription* StaticMeshDescription,
 	TArray<UMaterialInterface*> Materials)
 {
-	FString Path = TEXT("/Game/Planet/Meshes/GeneratedPlanets/");
+    FString Path = TEXT("/Game/Planet/Meshes/GeneratedPlanets/");
     FString BaseName = TEXT("SM_Planet_");
-    int32 Index = 1;
-    FString MeshName;
-    FString PackageName;
-
-    // AssetRegistry: 기존 에셋 존재 여부 확인
-    FAssetRegistryModule& AssetRegistryModule = FModuleManager::LoadModuleChecked<FAssetRegistryModule>("AssetRegistry");
-
-    // 중복 방지: 이름이 없을 때까지 Index++
-    while (true)
-    {
-        MeshName = FString::Printf(TEXT("%s%d"), *BaseName, Index);
-        PackageName = Path + MeshName;
-
-        FSoftObjectPath SoftPath(PackageName + TEXT(".") + MeshName);
-        FAssetData ExistingAsset = AssetRegistryModule.Get().GetAssetByObjectPath(SoftPath);
-
-        if (!ExistingAsset.IsValid())
-        {
-            // 존재하지 않으면 탈출
-            break;
-        }
-        Index++;
-    }
+    // GUID를 이용해 고유한 이름을 즉시 생성
+    FString GuidStr = FGuid::NewGuid().ToString(EGuidFormats::Short);
+    FString MeshName = BaseName + GuidStr;
+    FString PackageName = Path + MeshName;
 
     // 혹시 이미 로드된 패키지가 있으면 제거 (중복 충돌 방지)
     UPackage* ExistingPackage = FindPackage(nullptr, *PackageName);
@@ -153,32 +133,29 @@ UDynamicMesh* UPlanetMeshGenerator::ApplyPlanetPerlinNoiseToMesh(UDynamicMesh* T
 	FVector NoiseFrequencyShift = PlanetActor->NoiseFrequencyShift;
 	float NoiseFrequency = PlanetActor->NoiseFrequency;
 	
-	TargetMesh->EditMesh([&](FDynamicMesh3& EditMesh) 
-	{
-		FVector3d Offsets[3];
-		for (int k = 0; k < 3; ++k)
-		{
-			//const float RandomOffset = 10000.0f * Random.GetFraction();
-			Offsets[k] = FVector3d(0, 0, 0);
-			Offsets[k] += (FVector3d)NoiseFrequencyShift;
-		}
-		
-		UE::Geometry::FMeshNormals Normals(&EditMesh);
-		auto GetDisplacedPosition = [&EditMesh, &Offsets, &Normals, PlanetRadius, NoiseFrequency](int32 VertexID)
-		{
-			FVector3d Pos = EditMesh.GetVertex(VertexID);
-			float Magnitude = PlanetRadius * 0.1f;
+        TargetMesh->EditMesh([&](FDynamicMesh3& EditMesh)
+        {
+                FVector3d Offsets[3];
+                for (int k = 0; k < 3; ++k)
+                {
+                        Offsets[k] = (FVector3d)NoiseFrequencyShift;
+                }
 
-			FVector3d Displacement;
-			for (int32 k = 0; k < 3; ++k)
-			{
-				FVector NoisePos = (FVector)((double)NoiseFrequency * (Pos + Offsets[k]));
-				Displacement[k] = Magnitude * FMath::PerlinNoise3D(NoiseFrequency * NoisePos);
-			}
-			Pos += Displacement;
-			
-			return Pos;
-		};
+                auto GetDisplacedPosition = [&EditMesh, &Offsets, PlanetRadius, NoiseFrequency](int32 VertexID)
+                {
+                        FVector3d Pos = EditMesh.GetVertex(VertexID);
+                        float Magnitude = PlanetRadius * 0.1f;
+
+                        FVector3d Displacement;
+                        for (int32 k = 0; k < 3; ++k)
+                        {
+                                FVector NoisePos = (Pos + Offsets[k]) * NoiseFrequency;
+                                Displacement[k] = Magnitude * FMath::PerlinNoise3D(NoisePos);
+                        }
+                        Pos += Displacement;
+
+                        return Pos;
+                };
 
 		if (Selection.IsEmpty())
 		{ 

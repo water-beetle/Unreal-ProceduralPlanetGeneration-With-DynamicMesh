@@ -141,12 +141,11 @@ void UGrassFoliage::CreateGrassChunk(const FIntPoint& ChunkCoord)
 	GrassComp->bReceivesDecals = false;  // 필요시 데칼도 끄기
 	GrassComp->SetCanEverAffectNavigation(false); // 네비게이션 영향 없음 (NavMesh 사용시)
 
-    // 랜덤 오프셋
+    // 노이즈 시프트만 적용한 오프셋
     FVector3d Offsets[3];
     for (int32 k = 0; k < 3; ++k)
     {
-        float RandomOffset = 10000.0f * CurrentRandom->GetFraction();
-        Offsets[k] = FVector3d(0, 0, 0) + (FVector3d)CurrentNoiseShift;
+        Offsets[k] = (FVector3d)CurrentNoiseShift;
     }
 
     // Chunk 중심 방향 계산 (Octahedral 역 변환)
@@ -183,7 +182,8 @@ void UGrassFoliage::CreateGrassChunk(const FIntPoint& ChunkCoord)
 	// Tangent 공간에서 delta 단위로 샘플링
 	float HalfSize = (NumChunkSamples / 2) * PatchDelta;
 
-	TArray<FTransform> Transforms;
+    TArray<FTransform> Transforms;
+    Transforms.Reserve(NumChunkSamples * NumChunkSamples);
 	for (int32 i = 0; i < NumChunkSamples; ++i)
 	{
 		float u = -HalfSize + i * PatchDelta;
@@ -201,8 +201,8 @@ void UGrassFoliage::CreateGrassChunk(const FIntPoint& ChunkCoord)
             FVector3d Displacement;
             for (int32 k = 0; k < 3; ++k)
             {
-                    FVector NoisePos = (FVector)(CurrentNoiseFrequency * (PointOnSphere + Offsets[k]));
-                    Displacement[k] = Magnitude * FMath::PerlinNoise3D(CurrentNoiseFrequency * NoisePos);
+                    FVector NoisePos = (PointOnSphere + Offsets[k]) * CurrentNoiseFrequency;
+                    Displacement[k] = Magnitude * FMath::PerlinNoise3D(NoisePos);
             }
             FVector NoisePoint = PointOnSphere + Displacement;
 
