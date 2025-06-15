@@ -130,7 +130,7 @@ UDynamicMesh* UPlanetMeshGenerator::ApplyPlanetPerlinNoiseToMesh(UDynamicMesh* T
 
 	// Get Actor(Planet)'s Params
 	float PlanetRadius = PlanetActor->PlanetRadius;
-	FVector NoiseFrequencyShift = PlanetActor->NoiseFrequencyShift;
+	FVector NoiseFrequencyShift = PlanetActor->NoiseFrequencyShift * 10000.0f;
 	float NoiseFrequency = PlanetActor->NoiseFrequency;
 	
         TargetMesh->EditMesh([&](FDynamicMesh3& EditMesh)
@@ -150,7 +150,7 @@ UDynamicMesh* UPlanetMeshGenerator::ApplyPlanetPerlinNoiseToMesh(UDynamicMesh* T
                         for (int32 k = 0; k < 3; ++k)
                         {
                                 FVector NoisePos = (Pos + Offsets[k]) * NoiseFrequency;
-                                Displacement[k] = Magnitude * FMath::PerlinNoise3D(NoisePos);
+                                Displacement[k] = Magnitude * FMath::PerlinNoise3D(NoisePos * NoiseFrequency);
                         }
                         Pos += Displacement;
 

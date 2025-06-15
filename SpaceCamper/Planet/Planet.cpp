@@ -4,7 +4,6 @@
 #include "Planet.h"
 
 #include "GrassFoliage.h"
-#include "Utility/Generators/PlanetGenerator.h"
 #include "Utility/Generators/PlanetMeshGenerator.h"
 
 

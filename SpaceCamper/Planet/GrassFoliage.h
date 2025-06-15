@@ -42,8 +42,9 @@ private:
 	FIntPoint LastCameraChunk = FIntPoint(-1, -1);
 
 	// 파라미터
-	int32 NumChunks = 32;                // Octahedral 2D 분할 갯수
-	int32 NumChunkSamples = 64;
+	const int32 NumChunks = 32;                // Octahedral 2D 분할 갯수
+	const int32 NumChunkSamples = 64;
+	const int32 LoadRange = 3;
 
 	float CurrentRadius;
 	float CurrentNoiseFrequency;

@@ -28,7 +28,7 @@ void UGrassFoliage::BeginPlay()
 	{
 		CurrentRadius = PlanetOwner->PlanetRadius;
 		CurrentNoiseFrequency = PlanetOwner->NoiseFrequency;
-		CurrentNoiseShift = PlanetOwner->NoiseFrequencyShift;
+		CurrentNoiseShift = PlanetOwner->NoiseFrequencyShift * 10000.0f;
 		CurrentRandom = &(PlanetOwner->Random);
 	}
 }
@@ -59,34 +59,34 @@ void UGrassFoliage::TickComponent(float DeltaTime, ELevelTick TickType, FActorCo
 
 FVector2D UGrassFoliage::OctahedralEncode(const FVector& N)
 {
-        FVector n = N / (FMath::Abs(N.X) + FMath::Abs(N.Y) + FMath::Abs(N.Z));
-        if (n.Z < 0)
-        {
-                float x = (1.0f - FMath::Abs(n.Y)) * (n.X >= 0.0f ? 1.0f : -1.0f);
-                float y = (1.0f - FMath::Abs(n.X)) * (n.Y >= 0.0f ? 1.0f : -1.0f);
-                return FVector2D(x, y);
-        }
-        return FVector2D(n.X, n.Y);
+	FVector n = N / (FMath::Abs(N.X) + FMath::Abs(N.Y) + FMath::Abs(N.Z));
+	if (n.Z < 0)
+	{
+		float x = (1.0f - FMath::Abs(n.Y)) * (n.X >= 0.0f ? 1.0f : -1.0f);
+		float y = (1.0f - FMath::Abs(n.X)) * (n.Y >= 0.0f ? 1.0f : -1.0f);
+		return FVector2D(x, y);
+	}
+	return FVector2D(n.X, n.Y);
 }
 
 FVector UGrassFoliage::OctahedralDecode(const FVector2D& UV)
 {
-    FVector2D Oct = UV * 2.0f - FVector2D(1.0f, 1.0f);
+	FVector2D Oct = UV * 2.0f - FVector2D(1.0f, 1.0f);
 
-    FVector N;
-    if (1.0f - FMath::Abs(Oct.X) - FMath::Abs(Oct.Y) >= 0.0f)
-    {
-        N = FVector(Oct.X, Oct.Y, 1.0f - FMath::Abs(Oct.X) - FMath::Abs(Oct.Y));
-    }
-    else
-    {
-        N = FVector(
-            Oct.X >= 0.0f ? 1.0f - FMath::Abs(Oct.Y) : -1.0f + FMath::Abs(Oct.Y),
-            Oct.Y >= 0.0f ? 1.0f - FMath::Abs(Oct.X) : -1.0f + FMath::Abs(Oct.X),
-            -1.0f);
-    }
+	FVector N;
+	if (1.0f - FMath::Abs(Oct.X) - FMath::Abs(Oct.Y) >= 0.0f)
+	{
+		N = FVector(Oct.X, Oct.Y, 1.0f - FMath::Abs(Oct.X) - FMath::Abs(Oct.Y));
+	}
+	else
+	{
+		N = FVector(
+			Oct.X >= 0.0f ? 1.0f - FMath::Abs(Oct.Y) : -1.0f + FMath::Abs(Oct.Y),
+			Oct.Y >= 0.0f ? 1.0f - FMath::Abs(Oct.X) : -1.0f + FMath::Abs(Oct.X),
+			-1.0f);
+	}
 
-    return N.GetSafeNormal();
+	return N.GetSafeNormal();
 }
 
 FIntPoint UGrassFoliage::GetChunkCoordFromOctahedral(const FVector& N, int32 NumChunks)
@@ -102,8 +102,6 @@ FIntPoint UGrassFoliage::GetChunkCoordFromOctahedral(const FVector& N, int32 Num
 
 void UGrassFoliage::UpdateGrassChunks(const FIntPoint& CenterChunk)
 {
-	const int32 LoadRange = 2;
-
 	// 이번 프레임에서 필요한 Chunk 좌표만 저장
 	TSet<FIntPoint> VisibleChunks;
 
@@ -169,35 +167,38 @@ void UGrassFoliage::CreateGrassChunk(const FIntPoint& ChunkCoord)
     }
 
     // Chunk 중심 방향 계산 (Octahedral 역 변환)
-    // Chunk 중심 방향을 계산해 둘 필요는 없지만 향후 용도에 대비해 남겨둠
     FVector2D CenterUV(
         (ChunkCoord.X + 0.5f) / NumChunks,
         (ChunkCoord.Y + 0.5f) / NumChunks
     );
-    FVector N = OctahedralDecode(CenterUV);
+	FVector N = OctahedralDecode(CenterUV);
+	
 
     TArray<FTransform> Transforms;
     Transforms.Reserve(NumChunkSamples * NumChunkSamples);
+	for (int32 i = 0; i < NumChunkSamples; ++i)
+	{
+		float U = (ChunkCoord.X + static_cast<float>(i) / (NumChunkSamples - 1)) / NumChunks;
+		for (int32 j = 0; j < NumChunkSamples; ++j)
+		{
+			float V = (ChunkCoord.Y + static_cast<float>(j) / (NumChunkSamples - 1)) / NumChunks;
 
-    for (int32 i = 0; i < NumChunkSamples; ++i)
-    {
-        float U = (ChunkCoord.X + static_cast<float>(i) / (NumChunkSamples - 1)) / NumChunks;
-        for (int32 j = 0; j < NumChunkSamples; ++j)
-        {
-            float V = (ChunkCoord.Y + static_cast<float>(j) / (NumChunkSamples - 1)) / NumChunks;
-
-            FVector PointOnSphere = OctahedralDecode(FVector2D(U, V)) * CurrentRadius;
+			// 중심 방향에서 LocalOffset을 더해 구 표면으로 투영
+			FVector PointOnSphere = OctahedralDecode(FVector2D(U, V)) * CurrentRadius;
 
             float Magnitude = CurrentRadius * 0.1f;
             FVector3d Displacement;
             for (int32 k = 0; k < 3; ++k)
             {
                     FVector NoisePos = (PointOnSphere + Offsets[k]) * CurrentNoiseFrequency;
-                    Displacement[k] = Magnitude * FMath::PerlinNoise3D(NoisePos);
+                    Displacement[k] = Magnitude * FMath::PerlinNoise3D(NoisePos * CurrentNoiseFrequency);
             }
             FVector NoisePoint = PointOnSphere + Displacement;
 
-            FRotator Rot = FRotationMatrix::MakeFromZ(NoisePoint).Rotator();
+			FQuat BaseQuat = FRotationMatrix::MakeFromZ(NoisePoint).ToQuat();
+			float RandYaw = CurrentRandom->FRandRange(0.f, 360.f);
+			FQuat RandomQuat = FQuat(NoisePoint.GetSafeNormal(), FMath::DegreesToRadians(RandYaw));
+			FRotator Rot = (RandomQuat * BaseQuat).Rotator();
 
             Transforms.Add(FTransform(Rot, NoisePoint));
         }
