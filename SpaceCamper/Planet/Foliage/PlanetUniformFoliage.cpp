@@ -9,7 +9,10 @@ UPlanetUniformFoliage::UPlanetUniformFoliage()
 {
     PrimaryComponentTick.bCanEverTick = true;
 	NumChunkSamples = 64;
-	CurrentRandom = new FRandomStream(FDateTime::Now().GetTicks());
+	
+	FGuid Guid = FGuid::NewGuid();
+	int32 Seed = GetTypeHash(Guid);
+	CurrentRandom = new FRandomStream(Seed);
 }
 
 void UPlanetUniformFoliage::CreateFoliageChunk(const FIntPoint& ChunkCoord)

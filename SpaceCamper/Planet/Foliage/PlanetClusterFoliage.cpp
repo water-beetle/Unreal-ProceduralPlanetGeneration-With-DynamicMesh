@@ -12,7 +12,10 @@ UPlanetClusterFoliage::UPlanetClusterFoliage()
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
-	CurrentRandom = new FRandomStream(FDateTime::Now().GetTicks());
+	
+	FGuid Guid = FGuid::NewGuid();
+	int32 Seed = GetTypeHash(Guid);
+	CurrentRandom = new FRandomStream(Seed);
 }
 
 
@@ -40,6 +43,8 @@ void UPlanetClusterFoliage::CreateFoliageChunk(const FIntPoint& ChunkCoord)
     if (!Owner) return;
 
 	if(!FoliageMesh) return;
+
+	
 
     UHierarchicalInstancedStaticMeshComponent* FlowerComp = NewObject<UHierarchicalInstancedStaticMeshComponent>(Owner);
     FlowerComp->RegisterComponent();

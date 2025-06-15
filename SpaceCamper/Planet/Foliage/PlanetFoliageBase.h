@@ -36,7 +36,10 @@ protected:
         float CurrentRadius;
         float CurrentNoiseFrequency;
         FVector CurrentNoiseShift;
-
+        float MountainHeight;
+        float OceanHeight;
+        
+        
         TMap<FIntPoint, UHierarchicalInstancedStaticMeshComponent*> FoliageChunkMap;
 
         UPROPERTY(EditAnywhere)
