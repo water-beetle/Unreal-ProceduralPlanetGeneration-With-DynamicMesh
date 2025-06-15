@@ -3,8 +3,8 @@
 
 #include "Planet.h"
 
-#include "Foliage/FlowerFoliage.h"
-#include "Foliage/GrassFoliage.h"
+#include "Foliage/PlanetClusterFoliage.h"
+#include "Foliage/PlanetUniformFoliage.h"
 #include "Utility/Generators/PlanetMeshGenerator.h"
 
 
@@ -23,12 +23,10 @@ APlanet::APlanet()
 	EditorMeshGenerator = CreateDefaultSubobject<UPlanetMeshGenerator>("PlanetMeshGenerator");
 	EditorMeshGenerator->SetupAttachment(RootComponent);
 
-	GrassFoliage = CreateDefaultSubobject<UGrassFoliage>("GrassFoliage");
-	FlowerFoliage = CreateDefaultSubobject<UFlowerFoliage>("FlowerFoliage");
-	
-	// Init Planet Noise Params
-	RandomSeed = 1999;
-	Random.Initialize(RandomSeed);
+	GrassFoliage = CreateDefaultSubobject<UPlanetClusterFoliage>("GrassFoliage");
+	FlowerFoliage = CreateDefaultSubobject<UPlanetClusterFoliage>("FlowerFoliage");
+	TreeFoliage = CreateDefaultSubobject<UPlanetClusterFoliage>("TreeFoliage");
+	RockFoliage = CreateDefaultSubobject<UPlanetClusterFoliage>("RockFoliage");
 }
 
 // Called when the game starts or when spawned
@@ -41,35 +39,14 @@ void APlanet::BeginPlay()
 		DynamicMaterial = UMaterialInstanceDynamic::Create(PlanetMaterial, this);
 		if (DynamicMaterial)
 		{
-			// 예시로 빨간색 적용
 			DynamicMaterial->SetScalarParameterValue(FName("MountinHeigh"), MountainHeight);
 			DynamicMaterial->SetScalarParameterValue(FName("OceanHeight"), OceanHeight);
 
-			// 메시 컴포넌트에 새 머티리얼 적용
 			PlanetMesh->SetMaterial(0, DynamicMaterial);
 		}
 	}
 	
 }
-
-#if WITH_EDITOR
-void APlanet::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
-{
-	Super::PostEditChangeProperty(PropertyChangedEvent);
-
-	FName PropertyName = (PropertyChangedEvent.Property != nullptr)
-		? PropertyChangedEvent.Property->GetFName()
-		: NAME_None;
-
-	if (PropertyName == GET_MEMBER_NAME_CHECKED(APlanet, RandomSeed))
-	{
-		// RandomSeed가 바뀌면 Random 업데이트
-		Random.Initialize(RandomSeed);
-
-		UE_LOG(LogTemp, Log, TEXT("RandomSeed updated: %d"), RandomSeed);
-	}
-}
-#endif
 
 // Called every frame
 void APlanet::Tick(float DeltaTime)

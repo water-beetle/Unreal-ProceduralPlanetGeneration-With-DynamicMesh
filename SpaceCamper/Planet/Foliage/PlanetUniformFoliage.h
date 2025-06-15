@@ -4,17 +4,21 @@
 
 #include "CoreMinimal.h"
 #include "PlanetFoliageBase.h"
-#include "GrassFoliage.generated.h"
+#include "PlanetUniformFoliage.generated.h"
 
 
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
-class SPACECAMPER_API UGrassFoliage : public UPlanetFoliageBase
+class SPACECAMPER_API UPlanetUniformFoliage : public UPlanetFoliageBase
 {
 	GENERATED_BODY()
 
 public:
-        UGrassFoliage();
+        UPlanetUniformFoliage();
+
+        UPROPERTY(EditAnywhere, Category = Foliage)
+        int32 NumChunkSamples = 64;
+        FRandomStream* CurrentRandom;
 
 protected:
         virtual void CreateFoliageChunk(const FIntPoint& ChunkCoord) override;

@@ -6,8 +6,8 @@
 #include "GameFramework/Actor.h"
 #include "Planet.generated.h"
 
-class UFlowerFoliage;
-class UGrassFoliage;
+class UPlanetClusterFoliage;
+class UPlanetUniformFoliage;
 class UPlanetMeshGenerator;
 
 UCLASS()
@@ -22,7 +22,6 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
 
 public:
 	// Called every frame
@@ -33,9 +32,13 @@ public:
 	UPlanetMeshGenerator* EditorMeshGenerator; // 에디터 전용
 #endif
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Foliage")
-	UGrassFoliage* GrassFoliage;
+	UPlanetClusterFoliage* GrassFoliage;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Foliage")
-	UFlowerFoliage* FlowerFoliage;
+	UPlanetClusterFoliage* FlowerFoliage;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Foliage")
+	UPlanetClusterFoliage* TreeFoliage;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Foliage")
+	UPlanetClusterFoliage* RockFoliage;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Mesh")
 	UStaticMeshComponent* PlanetMesh;
@@ -61,10 +64,6 @@ public:
 	float OceanHeight;
 	
 	// Planet Noise Params
-	UPROPERTY()
-	FRandomStream Random;
-	UPROPERTY(EditAnywhere, Category="Planet Params | Noise")
-	int RandomSeed;
 	UPROPERTY(EditAnywhere, Category="Planet Params | Noise")
 	FVector NoiseFrequencyShift;
 	UPROPERTY(EditAnywhere, Category="Planet Params | Noise")

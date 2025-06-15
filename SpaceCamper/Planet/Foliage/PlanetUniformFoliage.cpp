@@ -1,17 +1,18 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "GrassFoliage.h"
+#include "PlanetUniformFoliage.h"
 
 #include "Components/HierarchicalInstancedStaticMeshComponent.h"
 
-UGrassFoliage::UGrassFoliage()
+UPlanetUniformFoliage::UPlanetUniformFoliage()
 {
     PrimaryComponentTick.bCanEverTick = true;
 	NumChunkSamples = 64;
+	CurrentRandom = new FRandomStream(FDateTime::Now().GetTicks());
 }
 
-void UGrassFoliage::CreateFoliageChunk(const FIntPoint& ChunkCoord)
+void UPlanetUniformFoliage::CreateFoliageChunk(const FIntPoint& ChunkCoord)
 {
     AActor* Owner = GetOwner();
     if (!Owner) return;

@@ -1,23 +1,23 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "FlowerFoliage.h"
+#include "PlanetClusterFoliage.h"
 
 #include "Components/HierarchicalInstancedStaticMeshComponent.h"
 
 
 // Sets default values for this component's properties
-UFlowerFoliage::UFlowerFoliage()
+UPlanetClusterFoliage::UPlanetClusterFoliage()
 {
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
-	NumChunkSamples = 32;
+	CurrentRandom = new FRandomStream(FDateTime::Now().GetTicks());
 }
 
 
 // Called when the game starts
-void UFlowerFoliage::BeginPlay()
+void UPlanetClusterFoliage::BeginPlay()
 {
 	Super::BeginPlay();
 
@@ -27,17 +27,19 @@ void UFlowerFoliage::BeginPlay()
 
 
 // Called every frame
-void UFlowerFoliage::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+void UPlanetClusterFoliage::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	// ...
 }
 
-void UFlowerFoliage::CreateFoliageChunk(const FIntPoint& ChunkCoord)
+void UPlanetClusterFoliage::CreateFoliageChunk(const FIntPoint& ChunkCoord)
 {
 	AActor* Owner = GetOwner();
     if (!Owner) return;
+
+	if(!FoliageMesh) return;
 
     UHierarchicalInstancedStaticMeshComponent* FlowerComp = NewObject<UHierarchicalInstancedStaticMeshComponent>(Owner);
     FlowerComp->RegisterComponent();

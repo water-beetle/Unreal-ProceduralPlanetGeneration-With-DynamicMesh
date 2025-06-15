@@ -33,13 +33,9 @@ protected:
         const int32 NumChunks = 32;
         const int32 LoadRange = 3;
 
-        UPROPERTY(EditAnywhere, Category = Foliage)
-        int32 NumChunkSamples = 64;
-
         float CurrentRadius;
         float CurrentNoiseFrequency;
         FVector CurrentNoiseShift;
-        FRandomStream* CurrentRandom;
 
         TMap<FIntPoint, UHierarchicalInstancedStaticMeshComponent*> FoliageChunkMap;
 

@@ -20,7 +20,6 @@ void UPlanetFoliageBase::BeginPlay()
                 CurrentRadius = PlanetOwner->PlanetRadius;
                 CurrentNoiseFrequency = PlanetOwner->NoiseFrequency;
                 CurrentNoiseShift = PlanetOwner->NoiseFrequencyShift * 10000.0f;
-                CurrentRandom = &(PlanetOwner->Random);
         }
 }
 

@@ -4,17 +4,17 @@
 
 #include "CoreMinimal.h"
 #include "PlanetFoliageBase.h"
-#include "FlowerFoliage.generated.h"
+#include "PlanetClusterFoliage.generated.h"
 
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
-class SPACECAMPER_API UFlowerFoliage : public UPlanetFoliageBase
+class SPACECAMPER_API UPlanetClusterFoliage : public UPlanetFoliageBase
 {
 	GENERATED_BODY()
 
 public:
         // Sets default values for this component's properties
-        UFlowerFoliage();
+        UPlanetClusterFoliage();
 
 protected:
         /** 최소 클러스터 개수 */
@@ -32,6 +32,8 @@ protected:
         /** 클러스터 확산 정도 (청크 단위 비율) */
         UPROPERTY(EditAnywhere, Category = Foliage)
         float ClusterSpread = 0.1f;
+	
+		FRandomStream* CurrentRandom;
 
 protected:
 	// Called when the game starts
