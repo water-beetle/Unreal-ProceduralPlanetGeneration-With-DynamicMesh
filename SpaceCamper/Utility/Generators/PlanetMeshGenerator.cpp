@@ -149,7 +149,6 @@ UDynamicMesh* UPlanetMeshGenerator::ApplyPlanetPerlinNoiseToMesh(UDynamicMesh* T
 	}
 
 	// Get Actor(Planet)'s Params
-	const FRandomStream& Random = PlanetActor->Random;
 	float PlanetRadius = PlanetActor->PlanetRadius;
 	FVector NoiseFrequencyShift = PlanetActor->NoiseFrequencyShift;
 	float NoiseFrequency = PlanetActor->NoiseFrequency;
