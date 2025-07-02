@@ -120,3 +120,9 @@ FVector UPlanetFoliageBase::OctahedralDecode(const FVector2D& UV)
 }
 ```
 
+### Reference
+1. Sebastian Lague - Procedural Planets
+https://www.youtube.com/watch?v=QN39W020LqU&list=PLFt_AvWsXl0cONs3T0By4puYy6GM22ko8
+2. CodeLikeMe - Unreal Planet Generator #1 - Generate a Planet with Dynamic Mesh and Geometry Scripts
+https://www.youtube.com/watch?v=S7FbUNQsXts
+3. ChatGPT
