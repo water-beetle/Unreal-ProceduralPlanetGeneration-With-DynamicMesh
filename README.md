@@ -1,4 +1,4 @@
-# Unreal - Procedural Planet Generation By SphereBox
+# Unreal - Procedural Planet Generation Using SphereBox
 
  Dynamic Mesh를 사용하여 절차적 행성 구현해보기  
 
